@@ -1,0 +1,57 @@
+digraph{
+0[label="<cfg BasicBlock@0-c> START"]
+0 -> 13
+0 -> 76
+13[label="<cfg BasicBlock@d-40> DISPATCHER"]
+13 -> 65
+13 -> 638
+65[label="<cfg BasicBlock@41-4b> DISPATCHER"]
+65 -> 76
+65 -> 725
+76[label="<cfg BasicBlock@4c-95> FALLBACK"]
+76 -> 150
+76 -> 491
+150[label="<cfg BasicBlock@96-125> FALLBACK"]
+150 -> 294
+150 -> 295
+294[label="<cfg BasicBlock@126-126> FALLBACK"]
+294 -> -1
+295[label="<cfg BasicBlock@127-130> FALLBACK"]
+295 -> 305
+295 -> 306
+305[label="<cfg BasicBlock@131-131> FALLBACK"]
+305 -> -1
+306[label="<cfg BasicBlock@132-171> FALLBACK"]
+306 -> 370
+306 -> 379
+370[label="<cfg BasicBlock@172-17a> FALLBACK"]
+370 -> -1
+379[label="<cfg BasicBlock@17b-1ea> FALLBACK"]
+379 -> 491
+491[label="<cfg BasicBlock@1eb-27d> FALLBACK"]
+491 -> -1
+638[label="<cfg BasicBlock@27e-285> COMMON"]
+638 -> 646
+638 -> 650
+646[label="<cfg BasicBlock@286-289> COMMON"]
+646 -> -1
+650[label="<cfg BasicBlock@28a-2be> COMMON"]
+650 -> 812
+703[label="<cfg BasicBlock@2bf-2d4> COMMON"]
+703 -> -1
+725[label="<cfg BasicBlock@2d5-2dc> COMMON"]
+725 -> 733
+725 -> 737
+733[label="<cfg BasicBlock@2dd-2e0> COMMON"]
+733 -> -1
+737[label="<cfg BasicBlock@2e1-315> COMMON"]
+737 -> 836
+790[label="<cfg BasicBlock@316-32b> COMMON"]
+790 -> -1
+812[label="<cfg BasicBlock@32c-343> COMMON"]
+812 -> 703
+836[label="<cfg BasicBlock@344-35b> COMMON"]
+836 -> 790
+-1[label="<STOP BLOCK>"]
+
+}
