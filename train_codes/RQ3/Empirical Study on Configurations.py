@@ -64,20 +64,15 @@ def run_fusion_model(sequence_feature_path, structure_feature_path):
     ])
 
     param_grid = {
-        'rf__n_estimators': range(100, 300, 10),  # 20个选项
-        'rf__max_depth': range(10, 30, 1)  # 20个选项
+        'rf__n_estimators': range(100, 300, 10),
+        'rf__max_depth': range(10, 30, 1)
     }
 
-    # --- 建议的折中方案（如果上面的方案运行太慢，可以使用这个）---
-    # param_grid = {
-    #     'rf__n_estimators': [100, 150, 200, 250],
-    #     'rf__max_depth': [10, 15, 20, 25, 30]
-    # }
     grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='f1', n_jobs=-1, verbose=1)
     grid_search.fit(data, target)
 
-    print("\n✅ Best parameters found by GridSearchCV:", grid_search.best_params_)
-    print(f"✅ Best F1-score from GridSearchCV: {grid_search.best_score_:.4f}")
+    print("\n Best parameters found by GridSearchCV:", grid_search.best_params_)
+    print(f" Best F1-score from GridSearchCV: {grid_search.best_score_:.4f}")
 
     best_estimator = grid_search.best_estimator_
 
