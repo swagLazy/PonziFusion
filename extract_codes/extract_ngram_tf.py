@@ -84,6 +84,6 @@ def getngramlist(name):
 
 if __name__ == "__main__":
     extract_tf("rawcfgs_ngram_count.csv","rawcfg_ngram_term_count.json","rawcfg_ngram_tf.csv")
-    extract_tf("removedcfgs_ngram_count.csv","removedcfg_ngram_term_count.json","removedcfg_ngram_tf.csv")
-    extract_tf("filteredcfgs_ngram_count.csv","filteredcfg_ngram_term_count.json","filteredcfg_ngram_tf.csv")
+    # extract_tf("removedcfgs_ngram_count.csv","removedcfg_ngram_term_count.json","removedcfg_ngram_tf.csv")
+    # extract_tf("filteredcfgs_ngram_count.csv","filteredcfg_ngram_term_count.json","filteredcfg_ngram_tf.csv")
 

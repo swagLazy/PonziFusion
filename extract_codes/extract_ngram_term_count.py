@@ -2,7 +2,7 @@ import pandas as pd
 import os, json, math, csv
 
 listpath = "../dataset/lists/"
-midpath = "..dataset/features/mid_product/"
+midpath = "../dataset/features/mid_product/"
 
 
 def storengramlist(input, output):
@@ -139,9 +139,9 @@ def readcsv():
 
 if __name__ == "__main__":
     storengramlist("rawcfglists.csv","rawcfg_ngram_term_count.json")
-    storengramlist("removedcfglists.csv","removedcfg_ngram_term_count.json")
-    storengramlist("filteredcfglists.csv","filteredcfg_ngram_term_count.json")
+    # storengramlist("removedcfglists.csv","removedcfg_ngram_term_count.json")
+    # storengramlist("filteredcfglists.csv","filteredcfg_ngram_term_count.json")
 
     extract_ngram_term_count("rawcfg_ngram_term_count.json","rawcfglists.csv","rawcfgs_ngram_count.csv")
-    extract_ngram_term_count("removedcfg_ngram_term_count.json","removedcfglists.csv","removedcfgs_ngram_count.csv")
-    extract_ngram_term_count("filteredcfg_ngram_term_count.json","filteredcfglists.csv","filteredcfgs_ngram_count.csv")
+    # extract_ngram_term_count("removedcfg_ngram_term_count.json","removedcfglists.csv","removedcfgs_ngram_count.csv")
+    # extract_ngram_term_count("filteredcfg_ngram_term_count.json","filteredcfglists.csv","filteredcfgs_ngram_count.csv")

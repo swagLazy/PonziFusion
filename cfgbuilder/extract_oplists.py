@@ -79,7 +79,7 @@ if __name__ == "__main__":
     # rawcfgs removedcfgs identifiedcfgs filteredcfgs
     # rawcfglists removedcfglists identifiedcfglists filteredcfglists
     extract_oplist("rawcfgs.csv","rawcfglists.csv")
-    extract_oplist("removedcfgs.csv","removedcfglists.csv")
-    extract_oplist("identifiedcfgs.csv","identifiedcfglists.csv")
-    extract_oplist("filteredcfgs.csv","filteredcfglists.csv")
-    extract_oplist("icwscfgs.csv","icwslists.csv")
+    # extract_oplist("removedcfgs.csv","removedcfglists.csv")
+    # extract_oplist("identifiedcfgs.csv","identifiedcfglists.csv")
+    # extract_oplist("filteredcfgs.csv","filteredcfglists.csv")
+    # extract_oplist("icwscfgs.csv","icwslists.csv")

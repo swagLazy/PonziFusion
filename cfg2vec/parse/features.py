@@ -1,3 +1,5 @@
+# 文件：features.py
+
 import hashlib
 import networkx as nx
 from typing import List, Dict
@@ -12,34 +14,38 @@ class WeisfeilerLehmanHashing(object):
         wl_iterations (int): Number of WL iterations.
         attributed (bool): Presence of attributes.
         erase_base_feature (bool): Deleting the base features.
+        use_wl (bool): Flag to include Weisfeiler-Lehman subgraph features.
+        use_path (bool): Flag to include path sequence features.
     """
 
     def __init__(
-        self,
-        graph: nx.classes.graph.Graph,
-        wl_iterations: int,
-        attributed: bool,
-        erase_base_features: bool,
-        use_path: bool
+            self,
+            graph: nx.classes.graph.Graph,
+            wl_iterations: int,
+            attributed: bool,
+            erase_base_features: bool,
+            use_wl: bool,
+            use_path: bool
     ):
         """
         Initialization method which also executes feature extraction.
         """
-        self.wl_iterations = wl_iterations
         self.graph = graph
+        self.wl_iterations = wl_iterations
         self.attributed = attributed
         self.erase_base_features = erase_base_features
-        self._set_features()
-        self._do_recursions()
-
+        self.use_wl = use_wl
+        self.use_path = use_path
         self.use_degree = True
 
-        self.use_path = use_path
-        self.get_path_features()
+        # Core logic: always calculate all features for on-demand combination later
+        self._set_features()
+        self._do_recursions()
+        self._extract_path_features()
 
     def _set_features(self):
         """
-        Creating the features.
+        Creating the base features.
         """
         if self.attributed:
             self.features = nx.get_node_attributes(self.graph, "feature")
@@ -48,7 +54,6 @@ class WeisfeilerLehmanHashing(object):
                 node: self.graph.degree(node) for node in self.graph.nodes()
             }
         self.extracted_features = {k: [str(v)] for k, v in self.features.items()}
-        
 
     def _erase_base_features(self):
         """
@@ -60,9 +65,6 @@ class WeisfeilerLehmanHashing(object):
     def _do_a_recursion(self):
         """
         The method does a single WL recursion.
-
-        Return types:
-            * **new_features** *(dict of strings)* - The hash table with extracted WL features.
         """
         new_features = {}
         for node in self.graph.nodes():
@@ -84,6 +86,7 @@ class WeisfeilerLehmanHashing(object):
         """
         for _ in range(self.wl_iterations):
             self.features = self._do_a_recursion()
+
         if self.erase_base_features:
             self._erase_base_features()
 
@@ -95,46 +98,73 @@ class WeisfeilerLehmanHashing(object):
 
     def get_graph_features(self) -> List[str]:
         """
-        Return the graph level features.
+        Return the graph level features based on flags.
         """
-        if self.use_path:
-            return [
-                feature
-                for node, features in self.extracted_features.items()
-                for feature in features
-            ] + self.path_features
-        else:
-            return [
+        final_features = []
+
+        if self.use_wl:
+            wl_features = [
                 feature
                 for node, features in self.extracted_features.items()
                 for feature in features
             ]
-    
-    def _dfs(self,node,visited,v_node,paths):
+            final_features.extend(wl_features)
+
+        if self.use_path:
+            final_features.extend(self.path_features)
+
+        if not final_features and self.extracted_features:
+            base_features = [
+                feature
+                for node, features in self.extracted_features.items()
+                for feature in features
+            ]
+            final_features.extend(base_features)
+
+        return final_features
+
+    def _dfs(self, node, visited, paths):
+        """
+        Corrected Depth-First Search to handle cycles.
+        'visited' now tracks the nodes in the current path.
+        """
         visited.append(node)
-        v_node[node] += 1
+
+        # Base case: If the node is a leaf (no outgoing edges), we found a complete path.
         if self.graph.out_degree(node) == 0:
             paths.append(visited.copy())
-            return
         else:
             for i in self.graph.successors(node):
-                if i not in visited and v_node[node] <= len(self.graph):
-                    self._dfs(i,visited,v_node,paths)
+                # This is the crucial cycle check.
+                # If the neighbor is already in our current path, skip it.
+                if i in visited:
+                    continue
+                self._dfs(i, visited, paths)
+
+        # Backtrack: Remove the node from the current path before returning.
+        # This allows the node to be visited again as part of a different path.
         visited.pop()
 
-    def get_path_features(self) -> List[str]:
-        if len(self.graph) ==0:
-            self.path_features =[]
-            return 
+    def _extract_path_features(self):
+        if len(self.graph) == 0:
+            self.path_features = []
+            return
+
         paths = []
-        node = list(self.graph.nodes)[0]
-        v_node = {}
-        for i in self.graph.nodes:
-            v_node[i] = 0
-        self._dfs(node,[],v_node,paths)
+        # Iterate through all nodes that could be a starting point (in-degree is 0).
+        for start_node in self.graph.nodes:
+            if self.graph.in_degree(start_node) == 0:
+                self._dfs(start_node, [], paths)
+
+        # If no paths were found (e.g., a graph with only cycles),
+        # start from an arbitrary node to get at least some path info.
+        if not paths and len(self.graph.nodes) > 0:
+            node = list(self.graph.nodes)[0]
+            self._dfs(node, [], paths)
+
         if self.use_degree:
             paths = self._change_to_degree(paths)
-        
+
         features = []
         for i in paths:
             p = [str(num) for num in i]
@@ -152,4 +182,3 @@ class WeisfeilerLehmanHashing(object):
                 newpath.append(self.graph.degree(node))
             res.append(newpath)
         return res
-        

@@ -225,7 +225,7 @@ def generateicws():
 # 主函数
 if __name__ == "__main__":
     generaterawcfg()
-    generateremovedcfg()
-    generateidentifiedcfgs()
-    generatefiltercfgs()
-    generateicws()
+    # generateremovedcfg()
+    # generateidentifiedcfgs()
+    # generatefiltercfgs()
+    # generateicws()

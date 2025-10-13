@@ -1,186 +1,97 @@
 import pandas as pd
 import networkx as nx
-import matplotlib.pylab as plt
 import numpy as np
-import os, json, math, csv
+import os
+import json
 from parse.cfg2vec import Cfg2Vec
-from sklearn.preprocessing import MaxAbsScaler, StandardScaler, MinMaxScaler
 
-# analysedcfglists cfglists
 cfgpath = "../dataset/graphlists/filteredcfg_merge_graph.csv"
 xiaorongcfgpath = "../dataset/graphlists/filteredcfg_nomerge_graph.csv"
-blockpath = "../dataset/blocks/identifiedcfgs.csv"
 
-featuespath = "../dataset/features/"
 vecfeatuespath = "../dataset/features/cfg2vec/"
 ablationpath = "../dataset/features/ablation/"
+os.makedirs(vecfeatuespath, exist_ok=True)
+os.makedirs(ablationpath, exist_ok=True)
 
 
-def extract_cfg2vec(featurefile, epoch):
-    data = pd.read_csv(cfgpath, index_col="address")
-    print("load data finished")
+def generate_graph_embeddings(input_graph_file, output_feature_file, epoch, use_wl, use_path):
+    print(f"--- Generating: {os.path.basename(output_feature_file)} ---")
+    print(f"Params: epoch={epoch}, use_wl={use_wl}, use_path={use_path}")
 
-    success = 0
-    total = len(data.index)
-    fail = 0
-    faillist = []
-
-    veccol = ['vec_' + str(i) for i in range(100)]
-    cols = ['address'] + veccol
-    df = pd.DataFrame(columns=cols)
+    data = pd.read_csv(input_graph_file, index_col="address")
+    print(f"Loaded {len(data)} graphs from {os.path.basename(input_graph_file)}")
 
     graphs = []
-    map = {}
-    n = []
+    address_map = {}
 
-    for ind in data.index:
+    for i, ind in enumerate(data.index):
         try:
             nodelist = json.loads(data.loc[ind, "nodes"])
             edgelist = json.loads(data.loc[ind, "edges"])
             g = nx.DiGraph()
             g.add_nodes_from(nodelist)
             g.add_edges_from(edgelist)
-            if len(g) == 0:
-                n.append(ind)
-            graphs.append(g)
-            map[ind] = success
-            success += 1
-
+            if len(g) > 0:
+                graphs.append(g)
+                address_map[ind] = len(graphs) - 1
         except Exception as e:
-            print(ind, e)
-            faillist.append(ind)
-            fail += 1
-        finally:
-            print("get graph: ", success, " / ", total, " / ", fail)
+            print(f"Warning: Failed to process graph for address {ind}. Error: {e}")
 
-    print("get graphs total:", len(graphs))
-    print(n)
+    print(f"Successfully constructed {len(graphs)} graph objects.")
 
-    model = Cfg2Vec(dimensions=100, wl_iterations=epoch)
+    model = Cfg2Vec(dimensions=100, wl_iterations=epoch, use_wl=use_wl, use_path=use_path)
     model.fit(graphs)
     vecs = model.get_embedding()
-    print("fit finished")
-
-    success = 0
-    total = len(data.index)
-    fail = 0
-    faillist = []
-
-    for ind in data.index:
-        if ind in map.keys():
-            vi = vecs[map[ind]]
-            v = vi.tolist()
-            newline = dict(zip(veccol, v))
-            newline['address'] = ind
-            newrow = pd.Series(newline)
-            df = df.append(newrow, ignore_index=True)
-            success += 1
-            print("get vec: ", success, " / ", total)
-        else:
-            print(ind)
-
-    df.to_csv(vecfeatuespath + featurefile, index=False)
-    print(faillist)
-
-
-def extract_xiaorong_cfg2vec(featurefile, epoch):
-    data = pd.read_csv(xiaorongcfgpath, index_col="address")
-    print("load data finished")
-
-    success = 0
-    total = len(data.index)
-    fail = 0
-    faillist = []
+    print("Model fitting finished.")
 
     veccol = ['vec_' + str(i) for i in range(100)]
-    cols = ['address'] + veccol
-    df = pd.DataFrame(columns=cols)
+    results = []
+    for address, graph_index in address_map.items():
+        embedding = vecs[graph_index].tolist()
+        row = {'address': address}
+        row.update(dict(zip(veccol, embedding)))
+        results.append(row)
 
-    graphs = []
-    map = {}
-    n = []
-
-    for ind in data.index:
-        try:
-            nodelist = json.loads(data.loc[ind, "nodes"])
-            edgelist = json.loads(data.loc[ind, "edges"])
-            g = nx.DiGraph()
-            g.add_nodes_from(nodelist)
-            g.add_edges_from(edgelist)
-            if len(g) == 0:
-                n.append(ind)
-            graphs.append(g)
-            map[ind] = success
-            success += 1
-
-        except Exception as e:
-            print(ind, e)
-            faillist.append(ind)
-            fail += 1
-        finally:
-            print("get graph: ", success, " / ", total, " / ", fail)
-
-    print("get graphs total:", len(graphs))
-    print(n)
-
-    model = Cfg2Vec(dimensions=100, wl_iterations=epoch, use_path=False)
-    model.fit(graphs)
-    vecs = model.get_embedding()
-    print("fit finished")
-
-    success = 0
-    total = len(data.index)
-    fail = 0
-    faillist = []
-
-    for ind in data.index:
-        if ind in map.keys():
-            vi = vecs[map[ind]]
-            v = vi.tolist()
-            newline = dict(zip(veccol, v))
-            newline['address'] = ind
-            newrow = pd.Series(newline)
-            df = df.append(newrow, ignore_index=True)
-            success += 1
-            print("get vec: ", success, " / ", total)
-        else:
-            print(ind)
-
-    df.to_csv(ablationpath + featurefile, index=False)
-    print(faillist)
-
-
-def _dfs(graph, node, visited, paths):
-    print(node, graph.in_degree(node), [i for i in graph.successors(node)])
-    visited.append(node)
-    print(visited)
-    if graph.out_degree(node) == 0:
-        paths.append(visited.copy())
-        print(paths)
-    else:
-        for i in graph.successors(node):
-            if i not in visited:
-                _dfs(graph, i, visited, paths)
-            c = visited.count(i)
-            if c < graph.in_degree(i):
-                _dfs(graph, i, visited, paths)
-    visited.pop()
+    df_out = pd.DataFrame(results)
+    df_out.to_csv(output_feature_file, index=False)
+    print(f"Features saved to {output_feature_file}\n")
 
 
 if __name__ == "__main__":
-    extract_cfg2vec("cfg2vec_1_1.csv", 1)
-    extract_cfg2vec("cfg2vec_2_1.csv", 2)
-    extract_cfg2vec("cfg2vec_3_1.csv", 3)
-    extract_cfg2vec("cfg2vec_4_1.csv", 4)
-    extract_cfg2vec("cfg2vec_5_1.csv", 5)
-    extract_cfg2vec("cfg2vec_6_1.csv", 6)
-    extract_cfg2vec("cfg2vec_7_1.csv", 7)
-    extract_cfg2vec("cfg2vec_8_1.csv", 8)
-    extract_cfg2vec("cfg2vec_9_1.csv", 9)
-    extract_cfg2vec("cfg2vec_10_1.csv", 10)
+    # for epoch in range(1, 11):
+    #     output_file = os.path.join(vecfeatuespath, f"filteredcfg_cfg2vec_{epoch}.csv")
+    #     generate_graph_embeddings(
+    #         input_graph_file=cfgpath,
+    #         output_feature_file=output_file,
+    #         epoch=epoch,
+    #         use_wl=True,
+    #         use_path=True
+    #     )
 
-    extract_xiaorong_cfg2vec("xiaorong_cfg2vec_nomerge_4.csv", 4)
-    extract_xiaorong_cfg2vec("xiaorong_cfg2vec_nomerge_5.csv", 5)
+    ablation_epoch = 5
+    output_file_nomerge = os.path.join(ablationpath, f"xiaorong_cfg2vec_nomerge_{ablation_epoch}.csv")
+    # generate_graph_embeddings(
+    #     input_graph_file=xiaorongcfgpath,
+    #     output_feature_file=output_file_nomerge,
+    #     epoch=ablation_epoch,
+    #     use_wl=True,
+    #     use_path=True
+    # )
+    #
+    output_file_subgraph = os.path.join(ablationpath, f"xiaorong_cfg2vec_nosubgraph_{ablation_epoch}.csv")
+    generate_graph_embeddings(
+        input_graph_file=cfgpath,
+        output_feature_file=output_file_subgraph,
+        epoch=ablation_epoch,
+        use_wl=True,
+        use_path=False
+    )
 
-    extract_xiaorong_cfg2vec("xiaorong_cfg2vec_nopath_4.csv", 4)
-    extract_xiaorong_cfg2vec("xiaorong_cfg2vec_nopath_5.csv", 5)
+    # output_file_path = os.path.join(ablationpath, f"xiaorong_cfg2vec_nopath_{ablation_epoch}.csv")
+    # generate_graph_embeddings(
+    #     input_graph_file=cfgpath,
+    #     output_feature_file=output_file_path,
+    #     epoch=ablation_epoch,
+    #     use_wl=False,
+    #     use_path=True
+    # )
