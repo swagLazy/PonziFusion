@@ -1,4 +1,4 @@
-# 文件：cfg2vec.py
+
 
 from parse.doc2vec import Doc2Vec, TaggedDocument
 from parse.features import WeisfeilerLehmanHashing
@@ -44,7 +44,7 @@ class Cfg2Vec(Estimator):
 
         documents = []
         for i, graph in enumerate(graphs):
-            # 修正: 直接传递所有参数，不再修改迭代次数
+
             w = WeisfeilerLehmanHashing(
                 graph,
                 self.wl_iterations,
@@ -55,7 +55,7 @@ class Cfg2Vec(Estimator):
             )
             documents.append(w)
 
-        # 从 TaggedDocument 的 list comprehension 中过滤掉空的 word list
+
         tagged_documents = [
             TaggedDocument(words=doc.get_graph_features(), tags=[str(i)])
             for i, doc in enumerate(documents) if doc.get_graph_features()
@@ -64,11 +64,11 @@ class Cfg2Vec(Estimator):
         if not tagged_documents:
             print("Warning: No graph features were generated. The embedding will be empty.")
             self._embedding = []
-            # 创建一个空的 embedding 数组，其形状与预期输出匹配
+
             self._embedding = np.zeros((len(graphs), self.dimensions))
             return
 
-        # 建立一个从原始索引到有效文档索引的映射
+
         original_indices = [i for i, doc in enumerate(documents) if doc.get_graph_features()]
         index_map = {original_idx: new_idx for new_idx, original_idx in enumerate(original_indices)}
 
@@ -85,7 +85,7 @@ class Cfg2Vec(Estimator):
             seed=self.seed,
         )
 
-        # 为所有图创建嵌入，对于没有特征的图使用零向量
+
         self._embedding = np.zeros((len(graphs), self.dimensions))
         for original_idx in original_indices:
             new_idx = index_map[original_idx]
@@ -98,7 +98,7 @@ class Cfg2Vec(Estimator):
         self._set_seed()
         graphs = self._check_graphs(graphs)
 
-        # 修正: 直接传递所有参数
+
         documents = [
             WeisfeilerLehmanHashing(
                 graph,
@@ -117,7 +117,7 @@ class Cfg2Vec(Estimator):
             [
                 self.model.infer_vector(
                     doc, alpha=self.learning_rate, min_alpha=0.00001, epochs=self.epochs
-                ) if doc else np.zeros(self.dimensions)  # 如果 doc 为空，则推断为零向量
+                ) if doc else np.zeros(self.dimensions)
                 for doc in documents
             ]
         )

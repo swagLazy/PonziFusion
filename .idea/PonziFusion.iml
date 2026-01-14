@@ -2,7 +2,7 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Remote Python 3.8.20 (sftp://pczstudent@10.196.85.13:22/home/pcz4514/anaconda3/envs/ljq_gpu_copy/bin/python3.8) (2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="ponzi_sheme" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

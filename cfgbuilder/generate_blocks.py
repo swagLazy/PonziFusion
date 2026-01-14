@@ -24,7 +24,7 @@ def generaterawcfg():
     count = [0, 0, TOTAL_NUM]
     faillist = []
 
-    # 输出的文件名字
+    
     with open(blockpath + "rawcfgs.csv", "w") as fp:
         fieldnames = ['address', 'basicblocks']
         writer = csv.DictWriter(fp, fieldnames=fieldnames)
@@ -57,15 +57,15 @@ def generaterawcfg():
             f.write(i + "\n")
 
 
-# 生成过滤孤儿块的控制流图
-# removedcfgs.csv
+
+
 def generateremovedcfg():
     start = time.time()
     dataset = pd.read_csv(datapath, index_col="address")
     count = [0, 0, TOTAL_NUM]
     faillist = []
 
-    # 输出的文件名字
+    
     with open(blockpath + "removedcfgs.csv", "w") as fp:
         fieldnames = ['address', 'basicblocks']
         writer = csv.DictWriter(fp, fieldnames=fieldnames)
@@ -98,16 +98,16 @@ def generateremovedcfg():
             f.write(i + "\n")
 
 
-# 生成识别后的dispatcher，fallback，以及各个函数的控制流图
-# 这个控制流图会用于后续的analysis分析，过滤，以及特征提取
-# identifiedcfg
+
+
+
 def generateidentifiedcfgs():
     start = time.time()
     dataset = pd.read_csv(datapath, index_col="address")
     count = [0, 0, TOTAL_NUM]
     faillist = []
 
-    # 输出的文件名字
+    
     with open(blockpath + "identifiedcfgs.csv", "w") as fp:
         fieldnames = ['address', 'basicblocks']
         writer = csv.DictWriter(fp, fieldnames=fieldnames)
@@ -115,9 +115,20 @@ def generateidentifiedcfgs():
         builder = CfgBuilder()
         identify = CfgIdentify()
         for i in dataset.index:
-            bytecode = dataset.loc[i, "bytecode"]
-            bytecode = StringCleaner.removeInfo(bytecode)
+
+            
+            
+            
+            
             try:
+                bytecode = dataset.loc[i, "bytecode"]
+
+                
+                if not isinstance(bytecode, str):
+                    raise ValueError(f"Bytecode for {i} is not a string (is {type(bytecode)}). Skipping.")
+
+                bytecode = StringCleaner.removeInfo(bytecode)
+
                 cfg = builder.buildCfg(i, bytecode)
                 cfg = identify.identify(cfg)
                 blockjson = cfg.storejson()
@@ -128,12 +139,14 @@ def generateidentifiedcfgs():
                 writer.writerow(x)
 
             except Exception as e:
+                
                 print(e)
                 faillist.append(i)
                 count[1] += 1
             else:
                 count[0] += 1
             finally:
+                
                 print(count)
     end = time.time()
     use = end - start
@@ -148,7 +161,7 @@ def generatefiltercfgs():
 
     count = [0, 0, TOTAL_NUM]
     faillist = []
-    with open(blockpath + "filteredcfgs.csv", "w") as fp:
+    with open(blockpath + "filteredcfgs3.csv", "w") as fp:
         fieldnames = ['address', 'basicblocks']
         writer = csv.DictWriter(fp, fieldnames=fieldnames)
         writer.writeheader()
@@ -158,7 +171,7 @@ def generatefiltercfgs():
                 blockjson = dataset.loc[i, "basicblocks"]
                 cfg = builder.rebuildCfg(blockjson)
                 analysis = CfgAnalysis(cfg)
-                # 分析函数调用
+                
                 analysis.analyse()
 
                 blockjson = analysis.cfg.storejson()
@@ -198,7 +211,7 @@ def generateicws():
                 blockjson = dataset.loc[i, "basicblocks"]
                 cfg = builder.rebuildCfg(blockjson)
                 analysis = CfgAnalysis(cfg)
-                # 分析函数调用
+                
                 analysis.analyse_icws()
 
                 blockjson = analysis.cfg.storejson()
@@ -222,10 +235,10 @@ def generateicws():
             f.write(i + "\n")
 
 
-# 主函数
+
 if __name__ == "__main__":
     generaterawcfg()
-    # generateremovedcfg()
-    # generateidentifiedcfgs()
-    # generatefiltercfgs()
-    # generateicws()
+    generateremovedcfg()
+    generateidentifiedcfgs()
+    generatefiltercfgs()
+    generateicws()

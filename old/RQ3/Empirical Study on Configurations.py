@@ -64,24 +64,22 @@ def run_fusion_model(sequence_feature_path, structure_feature_path):
     ])
 
     param_grid = {
-        'rf__n_estimators': [150, 200, 250],
-        'rf__max_depth': [20, 25, 30],
-        'rf__min_samples_split': [2, 5],
-        'rf__min_samples_leaf': [1, 2]
+        'rf__n_estimators': range(100, 300, 10),
+        'rf__max_depth': range(10, 30, 1)
     }
 
-    grid_search = GridSearchCV(pipeline, param_grid, cv=10, scoring='f1', n_jobs=-1, verbose=1)
+    grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='f1', n_jobs=-1, verbose=1)
     grid_search.fit(data, target)
 
-    print("\nBest parameters found by GridSearchCV:", grid_search.best_params_)
-    print(f"Best F1-score from GridSearchCV: {grid_search.best_score_:.4f}")
+    print("\n Best parameters found by GridSearchCV:", grid_search.best_params_)
+    print(f" Best F1-score from GridSearchCV: {grid_search.best_score_:.4f}")
 
     best_estimator = grid_search.best_estimator_
 
     print("\n--- Final Model Performance (Mean +/- Std Dev) ---")
     scoring_metrics = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc']
     for metric in scoring_metrics:
-        scores = cross_val_score(best_estimator, data, target, cv=10, scoring=metric, n_jobs=-1)
+        scores = cross_val_score(best_estimator, data, target, cv=5, scoring=metric, n_jobs=-1)
         print(f"{metric.capitalize():<10}: {scores.mean():.4f} (+/- {scores.std():.4f})")
     print("\n")
 
@@ -89,7 +87,7 @@ def run_fusion_model(sequence_feature_path, structure_feature_path):
 def run_experiment_fixed_structure():
     print("=" * 25, "Starting Experiment 1: Fixed Structure Feature", "=" * 25)
 
-    fixed_structure_feature = CFG2VEC_PATH + "filteredcfg_cfg2vec_4.csv"
+    fixed_structure_feature = CFG2VEC_PATH + "filteredcfg_cfg2vec_5.csv"
     sequence_features_to_test = [
         TFIDF_PATH + "filteredcfg_1gram_tfidf.csv",
         TFIDF_PATH + "filteredcfg_2gram_tfidf.csv",
@@ -106,7 +104,7 @@ def run_experiment_fixed_structure():
 def run_experiment_fixed_sequence():
     print("=" * 25, "Starting Experiment 2: Fixed Sequence Feature", "=" * 25)
 
-    fixed_sequence_feature = TFIDF_PATH + "filteredcfg_3gram_tfidf.csv"
+    fixed_sequence_feature = TFIDF_PATH + "filteredcfg_2gram_tfidf.csv"
 
     for i in range(1, 11):
         structure_feature_to_test = CFG2VEC_PATH + f"filteredcfg_cfg2vec_{i}.csv"
@@ -118,3 +116,4 @@ def run_experiment_fixed_sequence():
 if __name__ == "__main__":
     run_experiment_fixed_structure()
     run_experiment_fixed_sequence()
+    print("\nAll experiments completed successfully! 🎉")

@@ -6,7 +6,7 @@ midpath = "../dataset/features/mid_product/"
 
 
 def storengramlist(input, output):
-    # rawcfglists removedcfglists filteredcfglists
+    
     path = listpath + input
     data = pd.read_csv(path, index_col="address")
     success = 0
@@ -52,7 +52,7 @@ def storengramlist(input, output):
               "2gram": op2gram,
               "3gram": op3gram,
               "4gram": op4gram}
-    # rawcfg_ngram_term_count removedcfg_ngram_term_count filteredcfg_ngram_term_count
+    
     with open(midpath + output, "w") as fp:
         json.dump(oplist, fp)
 
@@ -65,21 +65,21 @@ def getngramlist(name):
 
 
 def extract_ngram_term_count(gramlist, cfglists, output):
-    # get the opcodes
-    # rawcfg_ngram_term_count,removedcfg_ngram_term_count,filteredcfg_ngram_term_count
+    
+    
     cols = getngramlist(gramlist)
     feature_cols = cols["1gram"] + cols["2gram"] + cols["3gram"] + cols["4gram"] + \
                    ["1gram_counts", "2gram_counts", "3gram_counts", "4gram_counts"]
 
-    # open the list file 
-    # rawcfglists removedcfglists filteredcfglists
+    
+    
     path = listpath + cfglists
     data = pd.read_csv(path, index_col="address")
     success = 0
     total = len(data.index)
     fail = 0
-    # store the count text
-    # rawcfgs_ngram_count,removedcfgs_ngram_count filteredcfgs_ngram_count
+    
+    
     with open(midpath + output, "w") as fp:
         fieldnames = ['address'] + feature_cols
         writer = csv.DictWriter(fp, fieldnames=fieldnames)
@@ -139,9 +139,9 @@ def readcsv():
 
 if __name__ == "__main__":
     storengramlist("rawcfglists.csv","rawcfg_ngram_term_count.json")
-    # storengramlist("removedcfglists.csv","removedcfg_ngram_term_count.json")
-    # storengramlist("filteredcfglists.csv","filteredcfg_ngram_term_count.json")
+    storengramlist("removedcfglists.csv","removedcfg_ngram_term_count.json")
+    storengramlist("filteredcfglists.csv","filteredcfg_ngram_term_count.json")
 
     extract_ngram_term_count("rawcfg_ngram_term_count.json","rawcfglists.csv","rawcfgs_ngram_count.csv")
-    # extract_ngram_term_count("removedcfg_ngram_term_count.json","removedcfglists.csv","removedcfgs_ngram_count.csv")
-    # extract_ngram_term_count("filteredcfg_ngram_term_count.json","filteredcfglists.csv","filteredcfgs_ngram_count.csv")
+    extract_ngram_term_count("removedcfg_ngram_term_count.json","removedcfglists.csv","removedcfgs_ngram_count.csv")
+    extract_ngram_term_count("filteredcfg_ngram_term_count.json","filteredcfglists.csv","filteredcfgs_ngram_count.csv")

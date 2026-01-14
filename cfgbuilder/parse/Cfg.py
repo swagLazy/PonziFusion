@@ -28,18 +28,26 @@ class Cfg:
         self._loaders = loaders
         self._tooshort = short
 
-    def storetxt(self):
-        basicblocks:BasicBlock = self.basicBlocks
+    def storetxt(self, filepath=None):
+        """
+        将CFG保存为文本文件。
+        (已修改) 接受一个可选的 filepath 参数。
+        如果没有提供 filepath，则使用默认路径。
+        """
+        basicblocks: BasicBlock = self.basicBlocks
         text = self.name + '\n'
         for pair in basicblocks:
-            basicblock:BasicBlock = pair.value
-            text = text + str(basicblock)+'\n'
+            basicblock: BasicBlock = pair.value
+            text = text + str(basicblock) + '\n'
             for inst in basicblock.instructions:
                 text = text + hex(inst.pc) + ' ' + str(inst) + '\n'
             if basicblock.hasSuccessor():
                 text = text + 'successor: ' + str(basicblock.successors) + '\n'
-        path = txtpath + self.name + ".txt"
-        with open(path,"w")as f:
+
+        
+        path = filepath if filepath is not None else txtpath + self.name + ".txt"
+
+        with open(path, "w", encoding='utf-8') as f:
             f.write(text)
 
     def storejson(self):

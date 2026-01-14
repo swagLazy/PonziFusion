@@ -58,26 +58,26 @@ def generate_graph_embeddings(input_graph_file, output_feature_file, epoch, use_
 
 
 if __name__ == "__main__":
-    # for epoch in range(1, 11):
-    #     output_file = os.path.join(vecfeatuespath, f"filteredcfg_cfg2vec_{epoch}.csv")
-    #     generate_graph_embeddings(
-    #         input_graph_file=cfgpath,
-    #         output_feature_file=output_file,
-    #         epoch=epoch,
-    #         use_wl=True,
-    #         use_path=True
-    #     )
+    for epoch in range(1, 11):
+        output_file = os.path.join(vecfeatuespath, f"filteredcfg_cfg2vec_{epoch}.csv")
+        generate_graph_embeddings(
+            input_graph_file=cfgpath,
+            output_feature_file=output_file,
+            epoch=epoch,
+            use_wl=True,
+            use_path=True
+        )
 
-    ablation_epoch = 5
+    ablation_epoch = 4
     output_file_nomerge = os.path.join(ablationpath, f"xiaorong_cfg2vec_nomerge_{ablation_epoch}.csv")
-    # generate_graph_embeddings(
-    #     input_graph_file=xiaorongcfgpath,
-    #     output_feature_file=output_file_nomerge,
-    #     epoch=ablation_epoch,
-    #     use_wl=True,
-    #     use_path=True
-    # )
-    #
+    generate_graph_embeddings(
+        input_graph_file=xiaorongcfgpath,
+        output_feature_file=output_file_nomerge,
+        epoch=ablation_epoch,
+        use_wl=True,
+        use_path=True
+    )
+
     output_file_subgraph = os.path.join(ablationpath, f"xiaorong_cfg2vec_nosubgraph_{ablation_epoch}.csv")
     generate_graph_embeddings(
         input_graph_file=cfgpath,
@@ -87,11 +87,11 @@ if __name__ == "__main__":
         use_path=False
     )
 
-    # output_file_path = os.path.join(ablationpath, f"xiaorong_cfg2vec_nopath_{ablation_epoch}.csv")
-    # generate_graph_embeddings(
-    #     input_graph_file=cfgpath,
-    #     output_feature_file=output_file_path,
-    #     epoch=ablation_epoch,
-    #     use_wl=False,
-    #     use_path=True
-    # )
+    output_file_path = os.path.join(ablationpath, f"xiaorong_cfg2vec_nopath_{ablation_epoch}.csv")
+    generate_graph_embeddings(
+        input_graph_file=cfgpath,
+        output_feature_file=output_file_path,
+        epoch=ablation_epoch,
+        use_wl=False,
+        use_path=True
+    )

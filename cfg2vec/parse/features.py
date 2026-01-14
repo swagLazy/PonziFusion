@@ -1,4 +1,4 @@
-# 文件：features.py
+
 
 import hashlib
 import networkx as nx
@@ -38,7 +38,7 @@ class WeisfeilerLehmanHashing(object):
         self.use_path = use_path
         self.use_degree = True
 
-        # Core logic: always calculate all features for on-demand combination later
+        
         self._set_features()
         self._do_recursions()
         self._extract_path_features()
@@ -130,19 +130,19 @@ class WeisfeilerLehmanHashing(object):
         """
         visited.append(node)
 
-        # Base case: If the node is a leaf (no outgoing edges), we found a complete path.
+        
         if self.graph.out_degree(node) == 0:
             paths.append(visited.copy())
         else:
             for i in self.graph.successors(node):
-                # This is the crucial cycle check.
-                # If the neighbor is already in our current path, skip it.
+                
+                
                 if i in visited:
                     continue
                 self._dfs(i, visited, paths)
 
-        # Backtrack: Remove the node from the current path before returning.
-        # This allows the node to be visited again as part of a different path.
+        
+        
         visited.pop()
 
     def _extract_path_features(self):
@@ -151,13 +151,13 @@ class WeisfeilerLehmanHashing(object):
             return
 
         paths = []
-        # Iterate through all nodes that could be a starting point (in-degree is 0).
+        
         for start_node in self.graph.nodes:
             if self.graph.in_degree(start_node) == 0:
                 self._dfs(start_node, [], paths)
 
-        # If no paths were found (e.g., a graph with only cycles),
-        # start from an arbitrary node to get at least some path info.
+        
+        
         if not paths and len(self.graph.nodes) > 0:
             node = list(self.graph.nodes)[0]
             self._dfs(node, [], paths)

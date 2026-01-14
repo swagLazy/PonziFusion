@@ -68,7 +68,7 @@ def extact_test():
     i = "0x1a19c2aec934eb39c92cff0f1ba46efe8f6c56fe"
     blockjson = dataset.loc[i,"basicblocks"]
     cfg = builder.rebuildCfg(blockjson)
-    # cfg.storetxt()
+    cfg.storetxt()
     analysis = CfgAnalysis(cfg)
     analysis.analyse()
     l=analysis.extract_list()
@@ -76,10 +76,8 @@ def extact_test():
 
 
 if __name__ == "__main__":
-    # rawcfgs removedcfgs identifiedcfgs filteredcfgs
-    # rawcfglists removedcfglists identifiedcfglists filteredcfglists
     extract_oplist("rawcfgs.csv","rawcfglists.csv")
-    # extract_oplist("removedcfgs.csv","removedcfglists.csv")
-    # extract_oplist("identifiedcfgs.csv","identifiedcfglists.csv")
-    # extract_oplist("filteredcfgs.csv","filteredcfglists.csv")
-    # extract_oplist("icwscfgs.csv","icwslists.csv")
+    extract_oplist("removedcfgs.csv","removedcfglists.csv")
+    extract_oplist("identifiedcfgs.csv","identifiedcfglists.csv")
+    extract_oplist("filteredcfgs3.csv","filteredcfglists3.csv")
+    extract_oplist("icwscfgs.csv","icwslists.csv")
