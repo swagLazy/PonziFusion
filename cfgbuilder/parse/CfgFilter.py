@@ -5,6 +5,7 @@ from parse.entity import OrderDict,Triplet,Stack,Logger
 import re
 
 # 对cfg中的dispatcher、fallback以及函数入口进行查找
+# 最新的在analysis中
 class CfgFilter:
     def __init__(self):
         pass

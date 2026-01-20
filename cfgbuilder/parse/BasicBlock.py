@@ -4,12 +4,7 @@ from parse.BlockType import BlockType
 
 class BasicBlock:
     __slots__ = ['_offset', '_instructions', '_predecessors', '_successors', '_stackBalance', '_blocktype',
-                 '_hascaller', '_retain', '_typed_edges']
-
-    TERMINATOR_OPCODES = {
-        'STOP', 'RETURN', 'REVERT', 'INVALID',
-        'JUMP', 'JUMPI', 'SELFDESTRUCT'
-    }
+                 '_hascaller', '_retain']
 
     def __init__(self, offset):
         self._offset = offset
@@ -21,14 +16,11 @@ class BasicBlock:
         self._hascaller = None
         self._retain = True
 
-        self._typed_edges = []
-
     def calculateStackBalance(self) -> int:
         balance = 0
         for o in self._instructions:
-            if hasattr(o, 'pops'):
-                balance -= o.pops
-                balance += o.pushes
+            balance -= o.pops
+            balance += o.pushes
         return balance
 
     def add_instruction(self, instruction):
@@ -44,15 +36,11 @@ class BasicBlock:
     def __repr__(self):
         if self.type == BlockType.STOP:
             return '<STOP BLOCK>'
-        if not self.start or not self.end:
-            return f'<cfg BasicBlock@{self.offset}> {self.type}'
         return '<cfg BasicBlock@{:x}-{:x}> {}'.format(self.start.pc, self.end.pc, self.type)
 
     def __str__(self) -> str:
         if self.type == BlockType.STOP:
             return '<STOP BLOCK>'
-        if not self.start or not self.end:
-            return f'<cfg BasicBlock@{self.offset}> {self.type}'
         return '<cfg BasicBlock@{:x}-{:x}> {}'.format(self.start.pc, self.end.pc, self.type)
 
     def getInstruction(self, index):
@@ -75,17 +63,17 @@ class BasicBlock:
         return len(self._instructions)
 
     @property
-    def start(self):
+    def start(self) -> Instruction:
         if self.length:
             return self._instructions[0]
 
     @property
-    def end(self):
+    def end(self) -> Instruction:
         if self.length:
             return self._instructions[-1]
 
     @property
-    def lastsecond(self):
+    def lastsecond(self) -> Instruction:
         if self.length > 1:
             return self._instructions[-2]
         return None
@@ -107,6 +95,12 @@ class BasicBlock:
 
     def setretain(self, flag: bool):
         self._retain = flag
+
+    # def getPredecessor(self, key):
+    #     return self._predecessors.get(key, [])
+
+    # def getSuccessors(self, key):
+    #     return self._successors.get(key, [])
 
     @property
     def predecessors(self):
@@ -139,32 +133,19 @@ class BasicBlock:
 
     @property
     def ends_with_jump(self):
-        if not self.end: return False
         return self.end.name == 'JUMP'
 
     @property
     def ends_with_jumpi(self):
-        if not self.end: return False
         return self.end.name == 'JUMPI'
 
     @property
     def ends_with_jump_or_jumpi(self):
-        if not self.end: return False
-        if hasattr(self.end, 'is_branch'):
-            return self.end.is_branch()
-        else:
-            return self.end.name in {'JUMP', 'JUMPI'}
+        return self.end.is_branch()
 
     @property
     def is_terminator(self):
-        """
-        修复: 检查 self.end.name 而不是 self.end.is_terminator,
-        因为 'Instruct' 对象没有 'is_terminator' 属性。
-        """
-        if not self.end:
-            return False
-
-        return self.end.name in self.TERMINATOR_OPCODES
+        return self.end.is_terminator
 
     def has_caller(self):
         if self._hascaller == True:

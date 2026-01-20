@@ -9,9 +9,9 @@ from parse.entity import OrderDict,Triplet,Stack,Logger,Instruct
 import json,os
 
 
-builderpath = "../../cfgbuilder/"
-dotpath = "../dots/"
-txtpath = "../txts/"
+builderpath = "C:/Users/Administrator/Desktop/黄琮雄-科研资资料/cfgbuilder/"
+dotpath = "C:/Users/Administrator/Desktop/黄琮雄-科研资资料/cfgbuilder/dots/"
+txtpath = "C:/Users/Administrator/Desktop/黄琮雄-科研资资料/cfgbuilder/txts/"
 
 
 class CfgBuilder:
